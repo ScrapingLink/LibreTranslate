@@ -1,0 +1,28 @@
+FROM nvidia/cuda:11.0.3-runtime-ubuntu20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 \
+        python3-pip \
+        pkg-config \
+        libicu-dev \
+        libpython3-dev \
+        gcc \
+        g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+#        python3-icu && \
+#        pkg-config && \
+
+WORKDIR /app
+
+COPY . .
+
+# Install package from source code
+RUN pip install .
+
+# initialize the language models
+RUN ./install_models.py
+
+EXPOSE 5000
+ENTRYPOINT [ "libretranslate", "--host", "0.0.0.0" ]
